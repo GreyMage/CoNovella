@@ -3,7 +3,6 @@ html(lang="en")
 	head
 		title!=name
 		link(rel="stylesheet",href="/css/#{name}.css")
-		script(src="/js/#{name}.min.js")
 	body
 		div#welcome
 			h1 Welcome to #{name}.
@@ -12,3 +11,8 @@ html(lang="en")
 				wherein you each write a few words to the end of an ever-growing
 				story. Select a story to begin.
 			button.dismiss Sounds Good!
+		if INDEV
+			script(src="//localhost:9000/livereload.js")
+		// Import main JS.
+		script(src="/js/#{name}.min.js")
+			

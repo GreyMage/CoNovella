@@ -55,7 +55,10 @@ module.exports = function(grunt) {
         },
         watch: {
             files: ['<%= jshint.files %>', 'src/views/**', 'src/public/**'],
-            tasks: ['jshint', 'copy', 'concat', 'jasmine', 'uglify', 'stylus']
+            tasks: ['jshint', 'copy', 'concat', 'jasmine', 'uglify', 'stylus'],
+			options: {
+				livereload: 9000,
+			},
             //tasks: ['jshint', 'concat', 'uglify']
         },
 		stylus: {
