@@ -1,0 +1,15 @@
+Main page: 
+	Welcome flyout appears if first visit
+	Get list of top 5 most recently updated stories, keep them updating
+		with socket events, do not change this list without user action.
+		i.e., do no add new stories to the list, just show the most recent 5 
+		at time of load, and keep them updated live.
+	The list should show stats like: Words per turn, number of authors, Title, total words, etc.
+	Clicking a Story lets you watch the story being written, and shows most of the details.
+		Synopis, who's turn it is, spectators, and so on.
+		The authors should appear from the right as a list, centered on the current author. 
+			when the author changes, the list should move to center the new one.
+		The URL should change to one that can be read by the system to jump directly to the story, for sharing. 
+		The story should auto-scroll as it's written and fade out as it reaches the top of the screen.
+			Viewing the full story should be possible via scrolling(?) or clicking a "Read Full Story" button.
+			
