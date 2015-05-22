@@ -1,14 +1,23 @@
-wallpaper = #e8eaf6
+@css {
+	@import url(http://fonts.googleapis.com/css?family=Roboto);
+	@import url(http://fonts.googleapis.com/css?family=Bangers);
+	@import url(http://fonts.googleapis.com/css?family=Patrick+Hand);
+}
 
+wallpaper = #e8eaf6
 fore-color = #424242
 back-color = #c5cae9
 contrast-color = #283593
+primary-font = 'Roboto', sans-serif 
+button-font = 'Bangers', sans-serif 
+story-font = 'Patrick Hand', cursive
 
-body
+body 
 	color fore-color
 	background wallpaper
 	margin 0
 	padding 0
+	font-family primary-font
 	
 h1
 	font-size 1.2em
@@ -19,13 +28,20 @@ h1
 	height 100%
 	width 260px
 	padding 0 25px
-	position fixed
+	position fixed 
 	transition 0.7s all
 	transform translate(-100%)
+	box-shadow 0px 0px 0px
+	border-right 0px solid 
+	opacity 0
+	font-family story-font
 	
-#welcome.show
-	transform translate(0)
-	
+	&.show
+		transform translate(0)
+		border-right 1px solid
+		box-shadow 0px 0px 10px
+		opacity:1;
+		
 .dismiss
 	background contrast-color
 	border 1px solid fore-color
@@ -33,8 +49,61 @@ h1
 	left 0
 	margin auto
 	position absolute
-	right 0
+	right 0 
 	width 90%
 	color back-color
 	font-size: 1.5em
 	border-radius: 4px
+	font-family button-font
+	padding 10px 0
+	
+#topList
+	width 500px
+	margin 0 auto
+	position absolute
+	top 50%
+	left 0
+	right 0
+	transform translateY(-50%)
+	
+	.story
+		height 100px
+		background back-color
+		margin 5px
+		border-radius 10px
+		position relative
+		overflow hidden
+
+#topList 
+	.verbiage
+		position absolute
+		bottom 0
+		margin 5px
+		left 0
+
+	.story 
+		.title
+			position absolute
+			background contrast-color
+			color back-color
+			left 0
+			top 0
+			height 20px
+			line-height 20px
+			padding 0 10px 
+			
+			&:after
+				content ""
+				display block
+				border-top 10px solid contrast-color
+				border-left 10px solid contrast-color
+				border-right 10px solid rgba(0, 0, 0, 0)
+				border-bottom 10px solid rgba(0, 0, 0, 0)
+				right -20px
+				height 0
+				top 0
+				width 0
+				position absolute
+				
+.verbiage
+	font-family story-font

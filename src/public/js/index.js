@@ -97,7 +97,76 @@
 		});	
 	};
 	
+	var getTopStories = function(){
+		var def = new deferred();
+		var handleTopStories = function(obj){
+			obj = obj || [];
+			socket.removeListener("recvTopStories",handleTopStories);
+			def.resolve(obj);
+		};
+		socket.on('recvTopStories', handleTopStories);
+		socket.emit('getTopStories');
+		return def.promise();
+	};
+	
+	var showTopStories = function(){ 
+	
+		var topList = document.getElementById('topList');
+		
+		var loadTopStory = function(story){
+			
+			// BE AWARE! 
+			/*
+				We need to be able to update these with live edits from the server.
+				When we're loading all the stories the server will attach us to the 5 stories
+				update events, So we need to handle them, but after we enter one legit it will remove us from those. 
+			*/
+			
+			// Create Clickable story here
+			var storyDiv = document.createElement('div');
+			storyDiv.classList.add("story");
+			storyDiv.setAttribute("data-story-id",story.id);
+			
+			// This contains the live-updating verbiage of the story.
+			var verbiage = document.createElement('div');
+			verbiage.classList.add("verbiage");
+			verbiage.appendChild(document.createTextNode(story.verbiage));
+			storyDiv.appendChild(verbiage);
+			
+			var title = document.createElement('span');
+			title.classList.add("title");
+			title.appendChild(document.createTextNode(story.title));
+			storyDiv.appendChild(title);
+
+			topList.appendChild(storyDiv);
+		};
+	
+		getTopStories().done(function(stories){
+			if(!stories.length){
+				console.log("No Active stories! Whaaaa!?");
+			} else {
+				stories.forEach(function(story){
+					loadTopStory(story);
+				});
+			}
+			
+			var domstories = topList.getElementsByClassName('story');
+			
+			var handleTopUpdate = function(obj){
+				for(var i=0;i<domstories.length;i++){
+					if(parseInt(domstories[i].getAttribute("data-story-id"),10) == parseInt(obj.storyId,10)){
+						domstories[i].innerHTML += obj.verbiage;
+					}
+				}
+			};
+			// CONTINUE HERE 
+			socket.on('append', handleTopUpdate);
+			
+		});
+	};
+	
 	var handleWelcomeMsg = function(){
+		var def = new deferred();
 		if(!store.get("Welcomed")){
 			var wm = document.getElementById("welcome");
 			wm.classList.add("show");
@@ -105,6 +174,7 @@
 			var dismiss = function(){
 				wm.classList.remove('show');
 				store.set("Welcomed","1");
+				def.resolve();
 			};
 			
 			for(var i=0;i<dismissButtons.length;i++){
@@ -112,11 +182,15 @@
 				console.log("attaching to",el);
 				el.addEventListener("click",dismiss);
 			}
+		} else {
+			def.resolve();
 		}
+		return def.promise();
 	};
 	
 	var initHook = initSocketIo();
 	initHook.done(function(){regEvents();});
+	initHook.done(function(){showTopStories();});
 	initHook.done(function(){handleWelcomeMsg();});
   
 })(); 

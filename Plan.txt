@@ -13,3 +13,7 @@ Main page:
 		The story should auto-scroll as it's written and fade out as it reaches the top of the screen.
 			Viewing the full story should be possible via scrolling(?) or clicking a "Read Full Story" button.
 			
+Good g-fonts for the stories:
+	Patrick Hand
+	Architects Daughter
+	Dekko

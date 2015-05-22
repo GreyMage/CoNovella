@@ -4,13 +4,8 @@ html(lang="en")
 		title!=name
 		link(rel="stylesheet",href="/css/#{name}.css")
 	body
-		div#welcome
-			h1 Welcome to #{name}.
-			p.
-				#{name} is a game you play with friends 
-				wherein you each write a few words to the end of an ever-growing
-				story. Select a story to begin.
-			button.dismiss Sounds Good!
+		include ./fragments/welcome.jade
+		include ./fragments/topList.jade
 		if INDEV
 			script(src="//localhost:9000/livereload.js")
 		// Import main JS.
