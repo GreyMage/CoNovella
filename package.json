@@ -10,6 +10,7 @@
   "homepage": "https://github.com/GreyMage/CoNovella",
   "license": "MIT",
   "dependencies": {
+    "deferred": "^0.7.2",
     "express": "^4.12.4",
     "jade": "^1.9.2",
     "socket.io": "^1.3.5"

@@ -68,6 +68,13 @@
 		};
 		return ns;
 	};
+	var faIcon = function(name){
+		//<i class="fa fa-camera-retro"></i>
+		var i = document.createElement('i');
+		i.classList.add("fa");
+		i.classList.add("fa-"+name);
+		return i;
+	};
 	
 	// Init storage
 	var store = new storage();
@@ -103,6 +110,7 @@
 			obj = obj || [];
 			socket.removeListener("recvTopStories",handleTopStories);
 			def.resolve(obj);
+			console.log(obj);
 		};
 		socket.on('recvTopStories', handleTopStories);
 		socket.emit('getTopStories');
@@ -133,6 +141,12 @@
 			verbiage.appendChild(document.createTextNode(story.verbiage));
 			storyDiv.appendChild(verbiage);
 			
+			// Access level using fontawesome icons.
+			var access = document.createElement('div');
+			access.classList.add("access");
+			access.appendChild(faIcon("lock"));
+			storyDiv.appendChild(access); 
+			
 			var title = document.createElement('span');
 			title.classList.add("title");
 			title.appendChild(document.createTextNode(story.title));
@@ -153,7 +167,7 @@
 			var domstories = topList.getElementsByClassName('story');
 			var handleTopUpdate = function(obj){
 				for(var i=0;i<domstories.length;i++){
-					if(parseInt(domstories[i].getAttribute("data-story-id"),10) == parseInt(obj.storyId,10)){
+					if(domstories[i].getAttribute("data-story-id") == obj.storyId){
 						var c = domstories[i].getElementsByClassName('verbiage')[0];
 						c.innerHTML += " "+obj.verbiage;
 					}
