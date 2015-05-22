@@ -151,11 +151,11 @@
 			}
 			
 			var domstories = topList.getElementsByClassName('story');
-			
 			var handleTopUpdate = function(obj){
 				for(var i=0;i<domstories.length;i++){
 					if(parseInt(domstories[i].getAttribute("data-story-id"),10) == parseInt(obj.storyId,10)){
-						domstories[i].innerHTML += obj.verbiage;
+						var c = domstories[i].getElementsByClassName('verbiage')[0];
+						c.innerHTML += " "+obj.verbiage;
 					}
 				}
 			};
