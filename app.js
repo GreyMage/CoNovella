@@ -51,7 +51,13 @@ stories.push(new Story({
 
 stories.push(new Story({
 	id:"dwdawfg32g2",
-	title:"Test3",
+	title:"Much longer test name to check how it reacts.",
+	verbiage:""
+}));
+
+stories.push(new Story({
+	id:"dwadawfg4vres",
+	title:"A name that is simply too long to be properly allowed, but is good for seeing what happens to the frontend.",
 	verbiage:""
 }));
 

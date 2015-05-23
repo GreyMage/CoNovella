@@ -57,8 +57,8 @@ h1
 	border-radius: 4px
 	font-family button-font
 	padding 10px 0
-	
-#topList
+
+#topList 
 	width 500px
 	margin 0 auto
 	position absolute
@@ -67,16 +67,6 @@ h1
 	right 0
 	transform translateY(-50%)
 	
-	.story
-		height 100px
-		background back-color
-		margin 5px
-		border-radius 10px
-		position relative
-		overflow hidden
-		border 1px solid fore-color
-
-#topList 
 	.verbiage
 		position absolute
 		bottom 0
@@ -85,6 +75,15 @@ h1
 		pointer-events: none;
 
 	.story 
+		height 100px
+		background back-color
+		margin 5px
+		border-radius 10px
+		position relative
+		overflow hidden
+		border 1px solid fore-color
+		transform translateZ(0)
+		
 		.title
 			position absolute
 			background contrast-color
@@ -95,7 +94,8 @@ h1
 			line-height 20px
 			padding 0 10px 
 			transition 0.25s all
-			pointer-events: none;
+			pointer-events none
+			white-space nowrap
 			
 			&:after
 				content ""
@@ -113,7 +113,7 @@ h1
 			.access
 				transform translateX(50%) translateY(50%)
 			.title
-				transform translateX(-50%) translateY(-50%)
+				transform translateX(0) translateY(-50%)
 	
 .verbiage
 	font-family story-font
