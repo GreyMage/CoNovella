@@ -58,6 +58,11 @@ h1
 	font-family button-font
 	padding 10px 0
 
+.screen
+	display none
+	&.show
+		display block
+	
 #topList 
 	width 500px
 	margin 0 auto
@@ -114,10 +119,54 @@ h1
 				transform translateX(50%) translateY(50%)
 			.title
 				transform translateX(0) translateY(-50%)
+
+#fullPage 
+	left 0
+	margin 0 auto
+	position absolute
+	right 0
+	width 500px
+	background back-color
+	padding 0 20px
+	height 100%
 	
+	.container
+		height: 100%;
+		overflow: hidden;
+		position: relative;
+	
+	.back
+		background: transparent
+		border 0 none
+		font-size 2em
+		left 0
+		position absolute
+		top 0
+		transform translateX(-100%)
+	
+	.verbiage
+		bottom: 0;
+		left: 0;
+		margin: 0 0 100px
+		position: absolute;
+		font-size 1.3em
+		right: 0;
+
+	.entry
+		bottom: 20px;
+		font-family: story-font
+		font-size: 1.5em;
+		height: 50px;
+		left: 0;
+		margin: auto;
+		position: absolute;
+		right: 0;
+		text-align: center;
+		width: 500px;
+		
 .verbiage
 	font-family story-font
-	
+		
 .access
 	bottom 0
 	height 20px
