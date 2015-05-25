@@ -81,9 +81,14 @@ Librarian.getTopStories = function(id){
 	Librarian.init().done(function(){
 		var top = [], max = 5
 		for(var i=0;i<Librarian.collection.length;i++){
-			if(top.length<max) top.push(Librarian.collection[i]);
+			top.push(Librarian.collection[i]);
 		}
-		d.resolve(top);
+		top.sort(function(x,y){
+			if(x.updated < y.updated) return 1;
+			if(x.updated > y.updated) return -1;
+			return 0;
+		})
+		d.resolve(top.splice(0,max));
 	});
 	return d.promise;
 };
