@@ -120,7 +120,6 @@
 		tick();
 		return d.promise();
 	}
-
 	var getFragObj = function(){
 		var base = window.location.hash.match(/^#(.*)/);
 		if(!base) return {};
@@ -132,8 +131,7 @@
 		  if(splat.length > 1) out[splat[0]] = splat[1];
 		});
 		return out;
-	};
-	
+	};	
 	var setFragObj = function(obj){
 		if(!obj && window.location.hash.length > 0){
 			console.log("pushing history state to /");
@@ -155,8 +153,7 @@
 			console.log("pushing history state to ",frag);
 			history.pushState({}, "", frag);
 		}
-	};
-	
+	};	
 	var modFragObj = function(delta){
 		var x = getFragObj;
 		for(var i in delta){
@@ -231,62 +228,176 @@
 		});
 		
 	};
+	
+	var activeStory = false;
+	var initedStoryPage = false;
+	
+	var initStoryPage = function(){
+		initedStoryPage = true;
+	
+		var fullPage = document.getElementById('fullPage');
+		var verbiage = fullPage.getElementsByClassName("verbiage")[0];
+		var join = fullPage.getElementsByClassName("join")[0];
+		var back = fullPage.getElementsByClassName("back")[0];
+		var input = fullPage.getElementsByTagName("input")[0];
+		
+		// Init Scrolling
+		var scrollVerbiage = function(e){
+		
+			var direction = (e.deltaY>0)?1:-1;
+			var speed = 50;
+			
+			var c = parseInt(verbiage.style.bottom,10) || 0;
+			c += speed*direction;
+			var _c = -1*c;
+			
+			// clamp
+			if(c>0)c=0;
+			if(_c > verbiage.clientHeight) c = -1 * verbiage.clientHeight;
+			
+			verbiage.style.bottom = c+"px";
+			
+			console.log(c,verbiage.clientHeight);
+			return false;
+			
+		};
+		fullPage.addEventListener("wheel",scrollVerbiage);
+		
+		// Init Back Button
+		var goBack = function(){
+			showTopStories();
+		};
+		back.addEventListener("click",goBack);
+		
+		// Init Join Button
+		if(!join.getAttribute("data-join-event")){
+		
+			var joinChannel = function(){
+				socket.once("joinedAuthors",function(data){
+					join.classList.add("hide");
+					input.focus();
+				});
+				socket.emit("joinAuthors",activeStory);
+			};
+			
+			join.addEventListener("click",joinChannel);
+			join.setAttribute("data-join-event",1);
+			
+		}
+		
+		//init input Button
+		input.addEventListener("keydown",function(e){
+			if(input.classList.contains("bad")) return;
+			if(e.keyCode!=13) return;
+			socket.emit("append",{
+				_id:activeStory._id,
+				verbiage:input.value
+			});
+			input.value="";
+		});
+		
+		var handleChange = function(e){
+			var x = input.value.split(/\s+/);
+			if(x.length>3) {
+				input.classList.add("bad");
+			} else {
+				input.classList.remove("bad");
+			}
+			console.log(x);
+		};
+		
+		input.addEventListener("keydown",handleChange);
+		input.addEventListener("keyup",handleChange);
+				
+		var handleAuthorList = function(obj){
+			var first = obj[0];
+			console.log(first.id,socket.id);
+			
+			//TODO: if inactive tab, ping
+			
+			if(first.id == socket.id){
+				input.value="";
+				input.setAttribute("placeholder","");
+				input.classList.add("active");
+			} else {
+				for(var i=0;i<obj.length;i++){
+					if(obj[i].id == socket.id) break;
+				}
+				input.setAttribute("placeholder","Your Turn in "+i+"...");
+				input.classList.remove("active");
+			}
+		};
+		// CONTINUE HERE 
+		socket.on('modauthors', handleAuthorList);
+		
+	};
+	
 	var showSpecificStory = function(data){
 		var fullPage = document.getElementById('fullPage');
 		showScreen(fullPage);
+		activeStory = data;
 		
-		modFragObj({storyid:data._id});
+		if(!initedStoryPage)initStoryPage();
 		
+		modFragObj({storyid:activeStory._id});
+				
 		var verbiage = fullPage.getElementsByClassName("verbiage")[0];
-		verbiage.innerHTML = data.verbiage;
+		verbiage.innerHTML = activeStory.verbiage;
 		
-		if(!fullPage.getAttribute("data-scroll-event")){
-			var scrollVerbiage = function(e){
-			
-				var direction = (e.deltaY>0)?1:-1;
-				var speed = 50;
-				
-				var c = parseInt(verbiage.style.bottom,10) || 0;
-				c += speed*direction;
-				var _c = -1*c;
-				
-				// clamp
-				if(c>0)c=0;
-				if(_c > verbiage.clientHeight) c = -1 * verbiage.clientHeight;
-				
-				verbiage.style.bottom = c+"px";
-				
-				console.log(c,verbiage.clientHeight);
-				return false;
-				
-			};
-			
-			fullPage.addEventListener("wheel",scrollVerbiage);
-			fullPage.setAttribute("data-scroll-event",1);
-		}
+		var join = fullPage.getElementsByClassName("join")[0];
+		join.classList.remove("hide");
 		
-		var back = fullPage.getElementsByClassName("back")[0];
-		
-		if(!back.getAttribute("data-back-event")){
-		
-			console.log("setting callback");
-			var goBack = function(){
-				showTopStories();
-			};
-			back.addEventListener("click",goBack);
-			back.setAttribute("data-back-event",1);
-			
-		}
-		
+		var input = fullPage.getElementsByTagName("input")[0];
+		input.classList.remove("active");
 		
 		var handleMainUpdate = function(obj){
-			if(obj._id == data._id)
+			if(obj._id == activeStory._id)
 				verbiage.innerHTML += " "+obj.verbiage;
 			else 
 				console.log("bad update",obj);
 		};
 		// CONTINUE HERE 
 		socket.on('append', handleMainUpdate);
+		
+	};
+	var showIdentityScreen = function(data){
+		el = document.getElementById('identity');
+		showScreen(el);		
+		
+		var p = el.getElementsByTagName("p")[0];
+		var input = el.getElementsByTagName("input")[0];
+		
+		input.addEventListener("keydown",function(e){
+			if(e.keyCode!=13) return;
+			if(input.value.match(/^[a-zA-Z0-9]{3,20}$/)){
+				store.set("name",input.value);
+				socket.emit("nick",input.value);
+				fadeOut(p).done(function(){
+					p.innerHTML = "Looks good to me!";
+					fadeIn(p).done(function(){
+						setTimeout(showTopStories,1000);
+					});
+				});
+			} else {
+				console.log("else");
+				if(input.value.length < 3){				
+					fadeOut(p).done(function(){
+						p.innerHTML = "Those letters are boring! Not enough!";
+						fadeIn(p);
+					});
+				} else if(input.value.length > 20){				
+					fadeOut(p).done(function(){
+						p.innerHTML = "Those letters are confusing! Too many!";
+						fadeIn(p);
+					});
+				} else {				
+					fadeOut(p).done(function(){
+						p.innerHTML = "Those letters are too fancy! Keep it simple!";
+						fadeIn(p);
+					});
+				}
+			}
+		});
 		
 	};
 	var showTopStories = function(){ 
@@ -335,6 +446,19 @@
 		};
 	
 		getTopStories().done(function(stories){
+		
+			var newStory = document.createElement('div');
+			newStory.classList.add("story");
+			newStory.classList.add("new");
+			newStory.appendChild(document.createTextNode("New Story"));
+			newStory.addEventListener("click",function(){
+				socket.once("createdNew",function(data){
+					spectateStory(data._id);
+				});
+				socket.emit("createNewStory");
+			});
+			topList.appendChild(newStory);
+		
 			if(!stories.length){
 				console.log("No Active stories! Whaaaa!?");
 			} else {
@@ -353,7 +477,7 @@
 					}
 				}
 			};
-			// CONTINUE HERE 
+
 			socket.on('append', handleTopUpdate);
 			
 		});
@@ -406,8 +530,19 @@
 	
 	var initHook = initSocketIo();
 	initHook.done(function(){regEvents();});
-	initHook.done(handleURL);
+	initHook.done(function(){
+		if(!store.get("name")){
+			showIdentityScreen();
+		} else {
+			handleURL();
+		}
+	});
+	initHook.done(function(){
+		if(!!store.get("name")){
+			socket.emit("nick",store.get("name"));
+		}
+	});
 	initHook.done(function(){handleWelcomeMsg();});
-	initHook.done(function(){});
+	initHook.done(function(){window.socket = socket;});
   
 })(); 

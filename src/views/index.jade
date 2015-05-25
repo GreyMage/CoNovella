@@ -6,8 +6,10 @@ html(lang="en")
 		link(rel="stylesheet",href="/css/#{name}.css")
 	body
 		include ./fragments/welcome.jade
+		include ./fragments/identity.jade
 		include ./fragments/topList.jade
 		include ./fragments/fullPage.jade
+		
 		if INDEV
 			script(src="//localhost:9000/livereload.js")
 		// Import main JS.

@@ -175,13 +175,80 @@ var noise = function(story){
 	
 }
 
-// Do stuff
-Librarian.getAllStories().done(function(stories){
-	for(var x in stories) {
-		console.log("noise on",stories[x].title)
-		noise(stories[x]);
+// The executor handles story author queues.
+var Executor = {};
+Executor.queues = {};
+Executor.initQueue = function(story){
+	if(!!Executor.queues[story._id]) return;
+	console.log("EXEC: Created author queue for",story.channel());
+	Executor.queues[story._id] = [];
+};
+Executor.getAuthorArray = function(story){
+	if(!Executor.queues[story._id]) Executor.initQueue(story);
+	var queue = Executor.queues[story._id];
+	var out = [];
+	for(var i=0;i<queue.length;i++){
+		var n = queue[i].nickname || "Some Dude"
+		out.push({
+			id:queue[i].id,
+			nick:n
+		});
 	}
-});
+	return out;
+};
+Executor.removeAuthor = function(author){
+	console.log("EXEC: removing author from all queues");
+	for(var i in Executor.queues){
+		if(!!~Executor.queues[i].indexOf(author)){
+			console.log("EXEC: removing from",i);
+			Executor.queues[i].splice(Executor.queues[i].indexOf(author),1);
+			Librarian.getStory(i).done(function(story){
+				io.to(story.channel()).emit("modauthors",Executor.getAuthorArray(story));
+			});
+		}
+	}
+};
+Executor.addAuthorToStory = function(author,story){
+	if(!Executor.queues[story._id]) Executor.initQueue(story);
+	var queue = Executor.queues[story._id];
+	Executor.removeAuthor(author);
+	console.log("EXEC: Adding author to queue for",story.channel());
+	queue.push(author);
+	author.emit("joinedAuthors",story._id);
+	console.log("EXEC: watching for disconnect on this new guy");
+	author.on("disconnect",function(){
+		Executor.removeAuthor(author);
+	})
+	io.to(story.channel()).emit("modauthors",Executor.getAuthorArray(story));
+};
+Executor.handleSubmission = function(socket,story,data){
+	if(!Executor.queues[story._id]) Executor.initQueue(story);
+	var queue = Executor.queues[story._id];
+	console.log("EXEC: trying to add",data);
+	
+	while(queue.length > 0 && !queue[0]){
+		queue.shift();
+	}
+	
+	if(queue.length == 0) {
+		console.log("EXEC: but cancelled because nobody is home");
+		return;
+	}
+	
+	if(queue[0] !== socket) {
+		console.log("EXEC: but cancelled because",queue[0].id,"is not",socket.id);
+		return;
+	}
+	
+	// TODO: Make this more configureable
+	var fragments = data.verbiage.split(/\s+/);
+	if(fragments.length > 3) return; // AKA if > story.wpt
+	story.append(fragments.join(" "));
+	
+	//ROTATE THE BOARD
+	queue.push(queue.shift());
+	io.to(story.channel()).emit("modauthors",Executor.getAuthorArray(story));
+}
 
 var leaveAllStoryRooms = function(socket){
 	var d = new deferred();
@@ -204,12 +271,14 @@ var leaveAllStoryRooms = function(socket){
 
 io.on('connection', function (socket) {
 
+	console.log(socket.id);
+
 	socket.on('getTopStories', function () {
+		Executor.removeAuthor(socket);
 		leaveAllStoryRooms(socket).done(function(){
 			Librarian.getTopStories().done(function(topStories){
 				topStories.forEach(function(story){
 					socket.join(story.channel());
-					console.log("socket joining channel",story.channel());
 				});
 				socket.emit("recvTopStories",topStories);
 			});
@@ -217,16 +286,39 @@ io.on('connection', function (socket) {
 		
 	});
 	
+	socket.on('joinAuthors',function(data){
+		Librarian.getStory(data._id).done(function(story){
+			Executor.addAuthorToStory(socket,story);
+			//console.log(Executor.queues);
+		});
+	});
+	
+	socket.on('append',function(data){
+		Librarian.getStory(data._id).done(function(story){
+			Executor.handleSubmission(socket,story,data);
+		});
+	});
+	
+	socket.on('nick',function(data){
+		socket.nickname = data
+	});
+	
+	socket.on('createNewStory',function(data){
+		console.log(data);
+		var s = new Story({});
+		s.save().done(function(){
+			Librarian.manage(s);
+			socket.emit("createdNew",s);
+		});
+	});
+	
 	socket.on('spectate',function(data){
 		leaveAllStoryRooms(socket).done(function(){
 			Librarian.getStory(data._id).done(function(story){
 				socket.join(story.channel());
-				console.log("socket joining channel",story.channel());
-				console.log("now in rooms",socket.rooms);
 				socket.emit("recvSpectate",story);
 			});
 		});
-		
 	});
 	
 });

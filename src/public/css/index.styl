@@ -4,6 +4,13 @@
 	@import url(http://fonts.googleapis.com/css?family=Patrick+Hand);
 }
 
+vendor(prop, args)
+  -webkit-{prop} args
+  -moz-{prop} args
+  -o-{prop} args
+  {prop} args
+
+
 wallpaper = #e8eaf6
 fore-color = #424242
 back-color = #c5cae9
@@ -88,6 +95,11 @@ h1
 		overflow hidden
 		border 1px solid fore-color
 		transform translateZ(0)
+		&.new
+			font-size 3em
+			line-height 100px
+			text-align center
+			font-family button-font
 		
 		.title
 			position absolute
@@ -120,6 +132,15 @@ h1
 			.title
 				transform translateX(0) translateY(-50%)
 
+@keyframes active-pulse 
+	from
+		box-shadow 0 0 10px green
+		border-color green
+	to
+		box-shadow 0 0 10px transparent
+		border-color transparent
+
+				
 #fullPage 
 	left 0
 	margin 0 auto
@@ -129,6 +150,8 @@ h1
 	background back-color
 	padding 0 20px
 	height 100%
+	border-left 1px solid fore-color
+	border-right 1px solid fore-color
 	
 	.container
 		height: 100%;
@@ -153,6 +176,7 @@ h1
 		right: 0;
 
 	.entry
+		border 1px solid transparent
 		bottom: 20px;
 		font-family: story-font
 		font-size: 1.5em;
@@ -162,7 +186,34 @@ h1
 		position: absolute;
 		right: 0;
 		text-align: center;
+		width: 470px;
+		color fore-color
+		&.active
+			vendor animation-name active-pulse
+			vendor animation-duration 0.5s
+			vendor animation-iteration-count infinite
+			vendor animation-direction alternate
+			&.bad
+				background: red none repeat scroll 0 0;
+
+	.join
+		border: 1px solid;
+		bottom: 20px;
+		font-size: 2em;
+		height: 55px;
+		left: 0;
+		padding: 0;
+		position: absolute;
+		right: 0;
 		width: 500px;
+		background contrast-color
+		border 1px solid fore-color
+		color back-color
+		font-size: 1.5em
+		font-family button-font
+		border-radius: 4px
+		&.hide
+			display:none;
 		
 .verbiage
 	font-family story-font
@@ -195,3 +246,33 @@ h1
 		left: -20px;
 		position: absolute;
 		top: 0;
+		
+#identity
+	height 200px
+	left 0
+	margin auto
+	position absolute
+	right 0
+	top 50%
+	transform translateY(-50%)
+	width 500px
+	background back-color
+	border 1px solid fore-color
+	border-radius 5px
+	
+	.container
+		padding 10px
+		
+	p
+		font-size: 1.5em;
+		text-align: center;
+		font-family: button-font
+	
+	input
+		font-family: story-font
+		width: 400px;
+		margin: 0 auto;
+		display: block;
+		height: 60px;
+		text-align: center;
+		font-size: 2em;
