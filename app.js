@@ -178,10 +178,18 @@ var noise = function(story){
 // The executor handles story author queues.
 var Executor = {};
 Executor.queues = {};
+Executor.newTurnTimer = function(story){
+	clearTimeout(Executor.currentTimer);
+	Executor.currentTimer = setTimeout(function(){
+		console.log("EXEC: Timeout for story");
+		Executor.rotateTheBoard(story);
+	},1000*20);
+}
 Executor.initQueue = function(story){
 	if(!!Executor.queues[story._id]) return;
 	console.log("EXEC: Created author queue for",story.channel());
 	Executor.queues[story._id] = [];
+	Executor.newTurnTimer(story);
 };
 Executor.getAuthorArray = function(story){
 	if(!Executor.queues[story._id]) Executor.initQueue(story);
@@ -245,10 +253,18 @@ Executor.handleSubmission = function(socket,story,data){
 	if(fragments.length > 3) return; // AKA if > story.wpt
 	story.append(fragments.join(" "));
 	
-	//ROTATE THE BOARD
-	queue.push(queue.shift());
-	io.to(story.channel()).emit("modauthors",Executor.getAuthorArray(story));
+	Executor.rotateTheBoard(story);
 }
+Executor.rotateTheBoard = function(story){
+
+	if(!Executor.queues[story._id]) Executor.initQueue(story);
+	var queue = Executor.queues[story._id];
+	
+	queue.push(queue.shift());
+	io.to(story.channel()).emit("modauthors",Executor.getAuthorArray(story))
+	Executor.newTurnTimer(story);
+	
+};
 
 var leaveAllStoryRooms = function(socket){
 	var d = new deferred();
