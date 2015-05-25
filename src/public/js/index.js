@@ -319,12 +319,14 @@
 				if(!input.classList.contains("active")) input.value="";
 				input.setAttribute("placeholder","");
 				input.classList.add("active");
+				fullPage.classList.add("active");
 			} else {
 				for(var i=0;i<obj.length;i++){
 					if(obj[i].id == socket.id) break;
 				}
 				input.setAttribute("placeholder","Your Turn in "+i+"...");
 				input.classList.remove("active");
+				fullPage.classList.remove("active");
 			}
 		};
 		// CONTINUE HERE 

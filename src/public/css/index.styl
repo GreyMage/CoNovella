@@ -139,6 +139,12 @@ h1
 	to
 		box-shadow 0 0 10px transparent
 		border-color transparent
+		
+@keyframes active-timer 
+	from
+		height 100%
+	to
+		height 0%
 
 				
 #fullPage 
@@ -152,6 +158,26 @@ h1
 	height 100%
 	border-left 1px solid fore-color
 	border-right 1px solid fore-color
+	
+	&:before 
+	&:after 
+		content: "";
+		background-color: transparent;
+		position: absolute;
+		height: 100%;
+		width: 10px; 
+		bottom 0
+	&:before
+		left -11px
+	&:after
+		right -11px
+	&.active:before 
+	&.active:after 
+		background-color: green;
+		vendor animation-name active-timer
+		vendor animation-duration 20s
+		vendor animation-timing-function linear
+	
 	
 	.container
 		height: 100%;
