@@ -196,6 +196,7 @@ Executor.getAuthorArray = function(story){
 	var queue = Executor.queues[story._id];
 	var out = [];
 	for(var i=0;i<queue.length;i++){
+		if(!queue[i]) continue;
 		var n = queue[i].nickname || "Some Dude"
 		out.push({
 			id:queue[i].id,
@@ -260,7 +261,9 @@ Executor.rotateTheBoard = function(story){
 	if(!Executor.queues[story._id]) Executor.initQueue(story);
 	var queue = Executor.queues[story._id];
 	
-	queue.push(queue.shift());
+	var x = queue.shift()
+	if(x) queue.push(x);
+	
 	io.to(story.channel()).emit("modauthors",Executor.getAuthorArray(story))
 	Executor.newTurnTimer(story);
 	
