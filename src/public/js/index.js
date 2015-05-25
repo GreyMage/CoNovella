@@ -316,7 +316,7 @@
 			//TODO: if inactive tab, ping
 			
 			if(first.id == socket.id){
-				input.value="";
+				if(!input.classList.contains("active")) input.value="";
 				input.setAttribute("placeholder","");
 				input.classList.add("active");
 			} else {

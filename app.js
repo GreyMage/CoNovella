@@ -240,8 +240,10 @@ Executor.handleSubmission = function(socket,story,data){
 	var queue = Executor.queues[story._id];
 	console.log("EXEC: trying to add",data);
 	
-	while(queue.length > 0 && !queue[0]){
-		queue.shift();
+	while(queue.length > 0){
+		if(!queue[0]) { queue.shift(); continue }
+		if(!queue[0].socket.connected) { queue.shift(); continue }
+		break;
 	}
 	
 	if(queue.length == 0) {
