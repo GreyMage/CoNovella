@@ -242,8 +242,8 @@ Executor.handleSubmission = function(socket,story,data){
 	
 	while(queue.length > 0){
 		if(!queue[0]) { queue.shift(); continue }
-		if(!queue[0].socket) { queue.shift(); continue }
-		if(!queue[0].socket.connected) { queue.shift(); continue }
+		if(!queue[0].connected) {queue.shift(); continue }
+		if(queue[0].disconnected) { queue.shift(); continue }
 		break;
 	}
 	
